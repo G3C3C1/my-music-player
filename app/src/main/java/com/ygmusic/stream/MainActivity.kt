@@ -9,6 +9,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.media.MediaPlayer
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.MediaStore
@@ -32,6 +33,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
@@ -52,6 +54,11 @@ val YG_Gray = Color(0xFF888888)
 val YG_CardBG = Color(0xFF1A1A1A)
 val YG_BarBG = Color(0xFF1D1D1D)
 val YG_DarkBG = Color(0xFF080B10)
+
+// --- INSTAGRAM RENKLERİ ---
+val IG_Purple = Color(0xFF833AB4)
+val IG_Red = Color(0xFFFD1D1D)
+val IG_Orange = Color(0xFFFCB045)
 
 data class Song(val title: String, val artist: String, val path: String)
 
@@ -250,7 +257,7 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-// --- KEŞFET EKRANI (GEÇİCİ) ---
+// --- KEŞFET EKRANI ---
 @Composable
 fun ExploreScreen(themeColor: Color) {
     Column(modifier = Modifier.fillMaxSize().background(YG_DarkBG).padding(20.dp), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
@@ -277,6 +284,7 @@ fun CategoryChip(text: String, color: Color) {
 @Composable
 fun SettingsScreen(selectedMode: String, onModeChange: (String) -> Unit, exiledSongs: List<Song>, onRestore: (String) -> Unit) {
     var showExileSheet by remember { mutableStateOf(false) }
+    val context = LocalContext.current
     val motto = when (selectedMode) {
         "Efkarlı" -> "Dertler derya olmuş, bizde bir sandal... 🚬"
         "Jenerik" -> "Gelecekten geliyoruz, her şey dijital! ⚡"
@@ -295,8 +303,44 @@ fun SettingsScreen(selectedMode: String, onModeChange: (String) -> Unit, exiledS
             }
         }
         Text(text = motto, color = accentColor.copy(alpha = 0.8f), fontSize = 13.sp, modifier = Modifier.padding(top = 16.dp, bottom = 24.dp), fontWeight = FontWeight.Medium)
+
         HorizontalDivider(color = Color.White.copy(alpha = 0.1f), thickness = 1.dp)
+
+        // --- YENİ: INSTAGRAM KARTI (LİNK AKTİF) ---
+        Spacer(Modifier.height(16.dp))
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(85.dp)
+                .clip(RoundedCornerShape(20.dp))
+                .background(Brush.linearGradient(colors = listOf(IG_Purple, IG_Red, IG_Orange)))
+                .clickable {
+                    val uri = Uri.parse("http://instagram.com/_u/gececi.yusuf")
+                    val intent = Intent(Intent.ACTION_VIEW, uri)
+                    intent.setPackage("com.instagram.android")
+                    try {
+                        context.startActivity(intent)
+                    } catch (e: Exception) {
+                        context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("http://instagram.com/gececi.yusuf")))
+                    }
+                }
+        ) {
+            Row(modifier = Modifier.fillMaxSize().padding(horizontal = 20.dp), verticalAlignment = Alignment.CenterVertically) {
+                Box(modifier = Modifier.size(45.dp).background(Color.White.copy(alpha = 0.2f), CircleShape), contentAlignment = Alignment.Center) {
+                    Icon(Icons.Default.CameraAlt, null, tint = Color.White, modifier = Modifier.size(24.dp))
+                }
+                Spacer(Modifier.width(16.dp))
+                Column {
+                    Text("efendisi Dobby'e corap verdi", color = Color.White.copy(alpha = 0.9f), fontSize = 12.sp, fontWeight = FontWeight.Medium)
+                    Text("@gececi.yusuf", color = Color.White, fontSize = 18.sp, fontWeight = FontWeight.ExtraBold)
+                }
+                Spacer(Modifier.weight(1f))
+                Icon(Icons.Default.OpenInNew, null, tint = Color.White.copy(alpha = 0.7f), modifier = Modifier.size(20.dp))
+            }
+        }
+
         Spacer(Modifier.height(24.dp))
+
         Surface(modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(16.dp)).clickable { showExileSheet = true }, color = YG_CardBG) {
             Row(modifier = Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
                 Box(modifier = Modifier.size(40.dp).background(accentColor.copy(alpha = 0.1f), RoundedCornerShape(8.dp)), contentAlignment = Alignment.Center) {
